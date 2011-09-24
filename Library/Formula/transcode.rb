@@ -40,7 +40,7 @@ class Transcode < Formula
     system './configure', *args
     system "make install"
   end
-  
+
   def patches
     # Allow compilation to succeed with current ffmpeg
     # Taken from http://repository.slacky.eu/slackware64-13.37/multimedia/transcode/1.1.5/src/transcode-1.1.5-ffmpeg.patch
@@ -55,7 +55,7 @@ index 847f633..2a17cec 100644
 --- a/export/export_ffmpeg.c
 +++ b/export/export_ffmpeg.c
 @@ -643,8 +643,8 @@ MOD_init
- 
+
      lavc_venc_context->bit_rate           = vob->divxbitrate * 1000;
      lavc_venc_context->bit_rate_tolerance = lavc_param_vrate_tolerance * 1000;
 -    lavc_venc_context->mb_qmin            = lavc_param_mb_qmin;
@@ -78,20 +78,20 @@ index 2dea95d..737bf06 100644
    int                 pix_fmt, frame_size = 0, bpp = 8;
    struct ffmpeg_codec *codec;
 +  av_init_packet( &pkt );
- 
+
    char   *fourCC = NULL;
    char *mp4_ptr=NULL;
 @@ -261,8 +263,8 @@ void decode_lavc(decode_t *decode)
- 
+
        //tc_log_msg(__FILE__, "SIZE: (%d) MP4(%d) blen(%d) BUF(%d) read(%ld)", len, mp4_size, buf_len, READ_BUFFER_SIZE, bytes_read);
        do {
 -	  len = avcodec_decode_video(lavc_dec_context, &picture,
 -		  &got_picture, buffer+buf_len, mp4_size-buf_len);
 +	  len = avcodec_decode_video2(lavc_dec_context, &picture,
 +		  &got_picture, &pkt);
- 
- 	  if (len < 0) {
- 	      tc_log_error(__FILE__, "frame decoding failed");
+
+	  if (len < 0) {
+	      tc_log_error(__FILE__, "frame decoding failed");
 diff --git a/import/probe_ffmpeg.c b/import/probe_ffmpeg.c
 index 2b7486b..89e4a50 100644
 --- a/import/probe_ffmpeg.c
@@ -99,7 +99,7 @@ index 2b7486b..89e4a50 100644
 @@ -47,7 +47,7 @@ static void translate_info(const AVFormatContext *ctx, ProbeInfo *info)
      for (i = 0; i < ctx->nb_streams; i++) {
          st = ctx->streams[i];
- 
+
 -        if (st->codec->codec_type == CODEC_TYPE_VIDEO) {
 +        if (st->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
              info->bitrate = st->codec->bit_rate / 1000;
@@ -108,7 +108,7 @@ index 2b7486b..89e4a50 100644
 @@ -65,7 +65,7 @@ static void translate_info(const AVFormatContext *ctx, ProbeInfo *info)
      for (i = 0; i < ctx->nb_streams; i++) {
          st = ctx->streams[i];
- 
+
 -        if (st->codec->codec_type == CODEC_TYPE_AUDIO
 +        if (st->codec->codec_type == AVMEDIA_TYPE_AUDIO
           && j < TC_MAX_AUD_TRACKS) {
