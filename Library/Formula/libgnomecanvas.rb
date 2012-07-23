@@ -10,13 +10,11 @@ class Libgnomecanvas < Formula
   depends_on 'libglade'
   depends_on 'libart'
   depends_on 'gettext'
-  depends_on 'gtk+'
+  depends_on 'gtk'
 
   def install
-    system "./configure", "--disable-dependency-tracking",
-                          "--disable-static",
-                          "--prefix=#{prefix}",
-                          "--enable-glade"
+    system "./configure", "--disable-debug", "--disable-dependency-tracking", "--disable-static",
+                          "--prefix=#{prefix}", "--enable-glade"
     system "make install"
   end
 end
